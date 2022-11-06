@@ -2,6 +2,7 @@
   "name": "impendio",
   "version": "1.0.0",
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "start": "vite",
     "dev": "vite --host",

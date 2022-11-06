@@ -8,9 +8,8 @@ const api = Axios.create({
   baseURL: url,
   headers: {
     "Content-Type": "application/json",
-    "x-access-token": token ? token : "",
+    Authorization: token || "",
   },
 });
-
 
 export { api };
