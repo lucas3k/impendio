@@ -5,14 +5,16 @@ const Inputs = ({
   variant = "outlined",
   type = "text",
   autoFocus = false,
+  handleChange = () => {},
 }) => {
   return (
-    <Box component="div">
+    <Box component="div" sx={{ flex: 1 }}>
       <TextField
         label={label}
         variant={variant}
         type={type}
         autoFocus={autoFocus}
+        onChange={handleChange}
         fullWidth
         required
       />

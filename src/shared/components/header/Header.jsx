@@ -1,17 +1,13 @@
+import "./HeaderStyle.css";
 import { Box, Typography } from "@mui/material";
 import { BiDollar } from "react-icons/bi";
 import { Buttons } from "../buttons/Buttons";
-import {
-  styleHeader,
-  styleHeaderContainer,
-  styleHeaderTitleContainer,
-} from "./HeaderStyle";
 
 const Header = ({ isLogout = false }) => {
   return (
-    <Box component="header" sx={{ ...styleHeader }}>
-      <Box component="section" sx={{ ...styleHeaderContainer }}>
-        <Box component="section" sx={{ ...styleHeaderTitleContainer }}>
+    <Box component="header" className="styleHeader">
+      <Box component="section" className="styleHeaderContainer">
+        <Box component="section" className="styleHeaderTitleContainer">
           <Typography
             component="h1"
             variant="h2"
