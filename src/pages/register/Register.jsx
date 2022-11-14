@@ -28,9 +28,7 @@ const Register = () => {
       .post(
         "/user",
         { firstName, lastName },
-        {
-          headers: { Authorization: basicAuth },
-        }
+        { headers: { Authorization: basicAuth } }
       )
       .then((response) => {
         console.log(response);
@@ -53,7 +51,7 @@ const Register = () => {
           className="styleFormLogin"
         >
           <Box component="section">
-            <Typography component="h4" letiant="h4">
+            <Typography component="h4" variant="h4">
               Register
             </Typography>
           </Box>
