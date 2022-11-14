@@ -7,6 +7,7 @@ import { Inputs } from "../../shared/components/inputs/Inputs";
 import { Password } from "../../shared/components/inputs/Password";
 import { Buttons } from "../../shared/components/buttons/Buttons";
 import { api } from "../../shared/services/api/api";
+import { Notification } from "../../shared/components/Notification";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -31,10 +32,10 @@ const Register = () => {
         { headers: { Authorization: basicAuth } }
       )
       .then((response) => {
-        console.log(response);
+        Notification("success", response.data.message);
       })
       .catch((error) => {
-        console.log(error);
+        Notification("error", error.response.data.error.message);
       });
   };
 

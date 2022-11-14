@@ -23,7 +23,7 @@ const toastifyChildrenStyle = {
 };
 
 const Notification = (type = "default", msg = "Notificado!") => {
-  return toast[type](mgs, { ...toastifyChildrenStyle });
+  return toast[type](msg, { ...toastifyChildrenStyle });
 };
 
 export { Notification, toastifyContainerStyle };
