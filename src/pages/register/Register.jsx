@@ -31,12 +31,10 @@ const Register = () => {
         { firstName, lastName },
         { headers: { Authorization: basicAuth } }
       )
-      .then((response) => {
-        Notification("success", response.data.message);
-      })
-      .catch((error) => {
-        Notification("error", error.response.data.error.message);
-      });
+      .then((response) => Notification("success", response.data.message))
+      .catch((error) =>
+        Notification("error", error.response.data.error.message)
+      );
   };
 
   return (
