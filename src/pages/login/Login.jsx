@@ -6,20 +6,47 @@ import { Inputs } from "../../shared/components/inputs/Inputs";
 import { Buttons } from "../../shared/components/buttons/Buttons";
 import { Password } from "../../shared/components/inputs/Password";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Notification } from "../../shared/components/Notification";
+import { api } from "../../shared/services/api/api";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const toggleVisibility = () => setShowPassword(!showPassword);
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    console.log({ email, password });
+    const credentials = btoa(`${email.trim()}:${password.trim()}`);
+    const basicAuth = "Basic " + credentials;
+
+    if (email.trim() === "" || password.trim() === "") {
+      Notification("info", "Preencha todos os campos!");
+      return;
+    }
+
+    setDisabled(true);
+    api
+      .post(
+        "/login",
+        { email, password },
+        { headers: { Authorization: basicAuth } }
+      )
+      .then((response) => {
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard");
+      })
+      .catch((error) =>
+        Notification("warning", error.response.data.error.message)
+      )
+      .finally(() => setDisabled(false));
   };
 
   return (
@@ -54,7 +81,7 @@ const Login = () => {
             />
           </Box>
 
-          <Buttons text="Login" type="submit" />
+          <Buttons text="Login" type="submit" disabled={disabled} />
 
           <Box component="section">
             <Typography

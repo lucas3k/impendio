@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { BiDollar } from "react-icons/bi";
 import { Buttons } from "../buttons/Buttons";
 
-const Header = ({ isLogout = false }) => {
+const Header = ({ isLogout = false, handleClick = () => {} }) => {
   return (
     <Box component="header" className="styleHeader">
       <Box component="section" className="styleHeaderContainer">
@@ -20,7 +20,7 @@ const Header = ({ isLogout = false }) => {
           <BiDollar color="#1aae9e" />
         </Box>
 
-        {isLogout && <Buttons text="Sair" />}
+        {isLogout && <Buttons text="Sair" handleClick={handleClick} />}
       </Box>
     </Box>
   );

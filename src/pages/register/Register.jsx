@@ -2,7 +2,7 @@ import { Header } from "../../shared/components/header/Header";
 import { HelmetTitle } from "../../shared/components/HelmetTitle";
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Inputs } from "../../shared/components/inputs/Inputs";
 import { Password } from "../../shared/components/inputs/Password";
 import { Buttons } from "../../shared/components/buttons/Buttons";
@@ -10,10 +10,13 @@ import { api } from "../../shared/services/api/api";
 import { Notification } from "../../shared/components/Notification";
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [disabled, setDisabled] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -25,16 +28,33 @@ const Register = () => {
     const credentials = btoa(`${email.trim()}:${password.trim()}`);
     const basicAuth = "Basic " + credentials;
 
+    if (
+      firstName.trim() === "" ||
+      lastName.trim() === "" ||
+      email.trim() === "" ||
+      password.trim() === ""
+    ) {
+      Notification("info", "Preencha todos os campos!");
+      return;
+    }
+
+    setDisabled(true);
     api
       .post(
         "/user",
         { firstName, lastName },
         { headers: { Authorization: basicAuth } }
       )
-      .then((response) => Notification("success", response.data.message))
+      .then((response) => {
+        Notification("success", response.data.message);
+        setTimeout(() => {
+          navigate("/");
+        }, 2300);
+      })
       .catch((error) =>
-        Notification("error", error.response.data.error.message)
-      );
+        Notification("warning", error.response.data.error.message)
+      )
+      .finally(() => setDisabled(false));
   };
 
   return (
@@ -95,7 +115,7 @@ const Register = () => {
             />
           </Box>
 
-          <Buttons text="Cadastrar" type="submit" />
+          <Buttons text="Cadastrar" type="submit" disabled={disabled} />
 
           <Box component="section">
             <Typography
