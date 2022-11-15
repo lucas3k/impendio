@@ -6,6 +6,7 @@ const Inputs = ({
   type = "text",
   autoFocus = false,
   handleChange = () => {},
+  disabled = false,
 }) => {
   return (
     <Box component="div" sx={{ flex: 1 }}>
@@ -15,6 +16,7 @@ const Inputs = ({
         type={type}
         autoFocus={autoFocus}
         onChange={handleChange}
+        disabled={disabled}
         fullWidth
         required
       />

@@ -11,6 +11,7 @@ const Buttons = ({
   return (
     <Box component="div">
       <Button
+        sx={{ height: "100%" }}
         className="styledButton"
         variant={variant}
         type={type}
