@@ -35,6 +35,7 @@ const ModalDados = ({
         <Stack>
           <DatePicker
             views={["day", "month", "year"]}
+            inputFormat="DD/MM/YYYY"
             label="Data"
             value={valueDate}
             onChange={({ target }) => setValueDate(target.value)}

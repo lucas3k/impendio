@@ -22,8 +22,9 @@ const Dashboard = () => {
   const [openModalNewItem, setOpenModalNewItem] = useState(false);
   const toggleOpenedModalNewItem = () => setOpenModalNewItem(!openModalNewItem);
 
+  const token = localStorage.getItem("token");
+
   const handleClickLogout = () => {
-    const token = localStorage.getItem("token");
     localStorage.removeItem("token");
 
     api
@@ -31,8 +32,28 @@ const Dashboard = () => {
       .finally(() => navigate("/", { replace: true }));
   };
 
+  const newRevenues = (real, desc, data) => {
+    api
+      .post(
+        "/transaction",
+        {
+          value: real,
+          description: desc,
+          date: data,
+          typeId: 1,
+        },
+        { headers: { "x-access-token": token } }
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        Notification("error", error.response.data.error.message);
+      });
+  };
+
   const getDados = () => {
-    const real = valueReal.trim();
+    const real = Number(valueReal.trim());
     const desc = description.trim();
     const data = moment(valueDate).format("DD/MM/YYYY").trim();
 
@@ -42,7 +63,7 @@ const Dashboard = () => {
     }
 
     if (openModalNewItem) {
-      console.log({ real, desc, data });
+      newRevenues(real, desc, data);
 
       toggleOpenedModalNewItem();
     }
