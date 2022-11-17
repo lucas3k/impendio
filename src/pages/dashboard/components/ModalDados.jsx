@@ -38,7 +38,7 @@ const ModalDados = ({
             inputFormat="DD/MM/YYYY"
             label="Data"
             value={valueDate}
-            onChange={({ target }) => setValueDate(target.value)}
+            onChange={(e) => setValueDate(e)}
             renderInput={(params) => (
               <TextField {...params} helperText={null} />
             )}

@@ -33,10 +33,14 @@ const Dashboard = () => {
 
   const [fullRevenues, setFullRevenues] = useState(0);
   const [fullExpenses, setFullExpenses] = useState(0);
-  const [fullBalance, setFullBalance] = useState(0);
 
-  const [openModalNewItem, setOpenModalNewItem] = useState(false);
-  const toggleOpenedModalNewItem = () => setOpenModalNewItem(!openModalNewItem);
+  const [openModalNewRevenues, setOpenModalNewRevenues] = useState(false);
+  const toggleModalNewRevenues = () =>
+    setOpenModalNewRevenues(!openModalNewRevenues);
+
+  const [openModalNewExpenses, setOpenModalNewExpenses] = useState(false);
+  const toggleModalNewExpenses = () =>
+    setOpenModalNewExpenses(!openModalNewExpenses);
 
   const queryGetAllTransaction = () => {
     if (!token) return;
@@ -58,9 +62,19 @@ const Dashboard = () => {
     queryGetAllTransaction();
   }, [token]);
 
+  const getAllValues = (typeId) => {
+    return allTransaction.reduce((acc, item) => {
+      if (+item.typeId === typeId) return (acc += item.value);
+      return acc;
+    }, 0);
+  };
+
   useEffect(() => {
-    const value = allTransaction.reduce((acc, item) => (acc += item.value), 0);
-    setFullRevenues(value);
+    const valueRevenues = getAllValues(1);
+    const valueExpenses = getAllValues(2);
+
+    setFullRevenues(valueRevenues);
+    setFullExpenses(valueExpenses);
   }, [allTransaction]);
 
   const handleClickLogout = () => {
@@ -72,7 +86,7 @@ const Dashboard = () => {
       .finally(() => navigate("/", { replace: true }));
   };
 
-  const newRevenues = (real, desc, data) => {
+  const newTransaction = (real, desc, data, typeId) => {
     api
       .post(
         "/transaction",
@@ -80,17 +94,19 @@ const Dashboard = () => {
           value: real,
           description: desc,
           date: data,
-          typeId: 1,
+          typeId: typeId,
         },
         { headers: { "x-access-token": token } }
       )
       .then((response) => {
-        Notification("info", response.data.message);
+        Notification("success", response.data.message);
       })
       .catch((error) =>
         Notification("error", error.response.data.error.message)
       )
-      .finally(() => queryGetAllTransaction());
+      .finally(() => {
+        queryGetAllTransaction();
+      });
   };
 
   const getDados = () => {
@@ -103,10 +119,16 @@ const Dashboard = () => {
       return;
     }
 
-    if (openModalNewItem) {
-      newRevenues(real, desc, data);
+    if (openModalNewRevenues) {
+      newTransaction(real, desc, data, 1);
 
-      toggleOpenedModalNewItem();
+      toggleModalNewRevenues();
+    }
+
+    if (openModalNewExpenses) {
+      newTransaction(real, desc, data, 2);
+
+      toggleModalNewExpenses();
     }
   };
 
@@ -115,6 +137,33 @@ const Dashboard = () => {
       style: "currency",
       currency: "BRL",
     });
+  };
+
+  const handleDelete = (id) => {
+    if (!token) return;
+
+    api
+      .delete(`/transaction/${id}`, { headers: { "x-access-token": token } })
+      .then((response) => {
+        Notification("success", response.data.message);
+      })
+      .catch((error) =>
+        Notification("error", error.response.data.error.message)
+      )
+      .finally(() => queryGetAllTransaction());
+  };
+
+  const ModalGetDados = () => {
+    return (
+      <ModalDados
+        valueReal={valueReal}
+        setValueReal={setValueReal}
+        description={description}
+        setDescription={setDescription}
+        valueDate={valueDate}
+        setValueDate={setValueDate}
+      />
+    );
   };
 
   return (
@@ -132,7 +181,7 @@ const Dashboard = () => {
                 : "Receitas - sem valor"}
             </Typography>
 
-            <Buttons text="+" handleClick={toggleOpenedModalNewItem} />
+            <Buttons text="+ Receita" handleClick={toggleModalNewRevenues} />
           </Box>
 
           <Box className="containerModalBtn">
@@ -142,12 +191,12 @@ const Dashboard = () => {
                 : "Despesas - sem valor"}
             </Typography>
 
-            <Buttons text="+" />
+            <Buttons text="+ Despesas" handleClick={toggleModalNewExpenses} />
           </Box>
 
           <Box>
             <Typography component="p">
-              {`Valor total: ${formatNumberToBR(fullRevenues - fullExpenses)}`}
+              {`Saldo total: ${formatNumberToBR(fullRevenues - fullExpenses)}`}
             </Typography>
           </Box>
         </Box>
@@ -170,21 +219,39 @@ const Dashboard = () => {
                   .map((row) => (
                     <TableRow
                       key={row.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      sx={{
+                        "&:last-child td, &:last-child th": {
+                          border: 0,
+                        },
+                        //backgroundColor: `${+row.typeId === 1 ? "#77dd77" : "#cc0001"}`,
+                      }}
                     >
                       <TableCell component="th" scope="row">
                         {row.typeId}
                       </TableCell>
+
                       <TableCell align="right">
                         {formatNumberToBR(row.value)}
                       </TableCell>
+
                       <TableCell align="right">{row.description}</TableCell>
+
                       <TableCell align="right">
                         {moment(row.date).format("DD/MM/YYYY")}
                       </TableCell>
+
                       <TableCell align="right">
-                        <Button>Editar</Button>
-                        <Button>Excluir</Button>
+                        <Button size="small" sx={{ ml: 0.4, color: "#131313" }}>
+                          Editar
+                        </Button>
+
+                        <Button
+                          size="small"
+                          sx={{ color: "#131313" }}
+                          onClick={() => handleDelete(row.id)}
+                        >
+                          Excluir
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -196,20 +263,23 @@ const Dashboard = () => {
       </Box>
 
       <ModalBase
-        open={openModalNewItem}
-        toggleOpenedModal={toggleOpenedModalNewItem}
-        title={`${openModalNewItem ? "Adicionar receita" : ""}`}
+        open={openModalNewRevenues}
+        toggleOpenedModal={toggleModalNewRevenues}
+        title="Adicionar receita"
         subTitle="Informe os dados abaixo"
         getDados={getDados}
       >
-        <ModalDados
-          valueReal={valueReal}
-          setValueReal={setValueReal}
-          description={description}
-          setDescription={setDescription}
-          valueDate={valueDate}
-          setValueDate={setValueDate}
-        />
+        <ModalGetDados />
+      </ModalBase>
+
+      <ModalBase
+        open={openModalNewExpenses}
+        toggleOpenedModal={toggleModalNewExpenses}
+        title="Adicionar despesas"
+        subTitle="Informe os dados abaixo"
+        getDados={getDados}
+      >
+        <ModalGetDados />
       </ModalBase>
     </>
   );
