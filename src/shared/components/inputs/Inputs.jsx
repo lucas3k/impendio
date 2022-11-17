@@ -7,6 +7,7 @@ const Inputs = ({
   autoFocus = false,
   handleChange = () => {},
   disabled = false,
+  value = "",
 }) => {
   return (
     <Box component="div" sx={{ flex: 1 }}>
@@ -14,6 +15,7 @@ const Inputs = ({
         label={label}
         variant={variant}
         type={type}
+        value={value}
         autoFocus={autoFocus}
         onChange={handleChange}
         disabled={disabled}

@@ -20,6 +20,7 @@ import { Buttons } from "../../shared/components/buttons/Buttons";
 import { ModalBase } from "./components/ModalBase";
 import { ModalDados } from "./components/ModalDados";
 import { Notification } from "../../shared/components/Notification";
+import { BsTrash, BsPencil } from "react-icons/bs";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ const Dashboard = () => {
   const [valueReal, setValueReal] = useState("");
   const [description, setDescription] = useState("");
   const [valueDate, setValueDate] = useState(moment());
+  const [valueEdit, setValueEdit] = useState([]);
+  const [idItem, setIdItem] = useState(null);
+  const [typeIdItem, setTypeIdItem] = useState(null);
 
   const [allTransaction, setAllTransaction] = useState([]);
   const [token, setToken] = useState("");
@@ -34,13 +38,28 @@ const Dashboard = () => {
   const [fullRevenues, setFullRevenues] = useState(0);
   const [fullExpenses, setFullExpenses] = useState(0);
 
+  const clearCamps = () => {
+    setIdItem(null);
+    setTypeIdItem(null);
+    setValueReal("");
+    setDescription("");
+    setValueDate(moment());
+  };
+
   const [openModalNewRevenues, setOpenModalNewRevenues] = useState(false);
-  const toggleModalNewRevenues = () =>
+  const toggleModalNewRevenues = () => {
     setOpenModalNewRevenues(!openModalNewRevenues);
+  };
 
   const [openModalNewExpenses, setOpenModalNewExpenses] = useState(false);
-  const toggleModalNewExpenses = () =>
+  const toggleModalNewExpenses = () => {
     setOpenModalNewExpenses(!openModalNewExpenses);
+  };
+
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const toggleModalEdit = () => {
+    setOpenModalEdit(!openModalEdit);
+  };
 
   const queryGetAllTransaction = () => {
     if (!token) return;
@@ -58,24 +77,12 @@ const Dashboard = () => {
     if (isToken) setToken(isToken);
   }, []);
 
-  useEffect(() => {
-    queryGetAllTransaction();
-  }, [token]);
-
   const getAllValues = (typeId) => {
     return allTransaction.reduce((acc, item) => {
       if (+item.typeId === typeId) return (acc += item.value);
       return acc;
     }, 0);
   };
-
-  useEffect(() => {
-    const valueRevenues = getAllValues(1);
-    const valueExpenses = getAllValues(2);
-
-    setFullRevenues(valueRevenues);
-    setFullExpenses(valueExpenses);
-  }, [allTransaction]);
 
   const handleClickLogout = () => {
     setToken("");
@@ -90,6 +97,29 @@ const Dashboard = () => {
     api
       .post(
         "/transaction",
+        {
+          value: real,
+          description: desc,
+          date: data,
+          typeId: typeId,
+        },
+        { headers: { "x-access-token": token } }
+      )
+      .then((response) => {
+        Notification("success", response.data.message);
+      })
+      .catch((error) =>
+        Notification("error", error.response.data.error.message)
+      )
+      .finally(() => {
+        queryGetAllTransaction();
+      });
+  };
+
+  const editTransaction = (real, desc, data, typeId, id) => {
+    api
+      .patch(
+        `/transaction/${id}`,
         {
           value: real,
           description: desc,
@@ -130,6 +160,11 @@ const Dashboard = () => {
 
       toggleModalNewExpenses();
     }
+
+    if (openModalEdit) {
+      editTransaction(real, desc, data, typeIdItem, idItem);
+      toggleModalEdit();
+    }
   };
 
   const formatNumberToBR = (num = 0) => {
@@ -153,18 +188,40 @@ const Dashboard = () => {
       .finally(() => queryGetAllTransaction());
   };
 
-  const ModalGetDados = () => {
-    return (
-      <ModalDados
-        valueReal={valueReal}
-        setValueReal={setValueReal}
-        description={description}
-        setDescription={setDescription}
-        valueDate={valueDate}
-        setValueDate={setValueDate}
-      />
-    );
+  const handleEdit = (id) => {
+    const dados = allTransaction.find((item) => +item.id === id);
+
+    setValueEdit([dados]);
+    toggleModalEdit();
   };
+
+  useEffect(() => {
+    if (valueEdit.length) {
+      setIdItem(valueEdit[0].id);
+      setTypeIdItem(valueEdit[0].typeId);
+      setValueReal(valueEdit[0].value);
+      setDescription(valueEdit[0].description);
+      setValueDate(moment(valueEdit[0].date));
+    }
+  }, [valueEdit]);
+
+  useEffect(() => {
+    if (!openModalNewRevenues && !openModalNewExpenses && !openModalEdit) {
+      clearCamps();
+    }
+  }, [openModalNewRevenues, openModalNewExpenses, openModalEdit]);
+
+  useEffect(() => {
+    queryGetAllTransaction();
+  }, [token]);
+
+  useEffect(() => {
+    const valueRevenues = getAllValues(1);
+    const valueExpenses = getAllValues(2);
+
+    setFullRevenues(valueRevenues);
+    setFullExpenses(valueExpenses);
+  }, [allTransaction]);
 
   return (
     <>
@@ -223,7 +280,6 @@ const Dashboard = () => {
                         "&:last-child td, &:last-child th": {
                           border: 0,
                         },
-                        //backgroundColor: `${+row.typeId === 1 ? "#77dd77" : "#cc0001"}`,
                       }}
                     >
                       <TableCell component="th" scope="row">
@@ -241,8 +297,12 @@ const Dashboard = () => {
                       </TableCell>
 
                       <TableCell align="right">
-                        <Button size="small" sx={{ ml: 0.4, color: "#131313" }}>
-                          Editar
+                        <Button
+                          size="small"
+                          sx={{ ml: 0.4, color: "#131313" }}
+                          onClick={() => handleEdit(row.id)}
+                        >
+                          <BsPencil />
                         </Button>
 
                         <Button
@@ -250,7 +310,7 @@ const Dashboard = () => {
                           sx={{ color: "#131313" }}
                           onClick={() => handleDelete(row.id)}
                         >
-                          Excluir
+                          <BsTrash />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -269,7 +329,14 @@ const Dashboard = () => {
         subTitle="Informe os dados abaixo"
         getDados={getDados}
       >
-        <ModalGetDados />
+        <ModalDados
+          valueReal={valueReal}
+          setValueReal={setValueReal}
+          description={description}
+          setDescription={setDescription}
+          valueDate={valueDate}
+          setValueDate={setValueDate}
+        />
       </ModalBase>
 
       <ModalBase
@@ -279,7 +346,31 @@ const Dashboard = () => {
         subTitle="Informe os dados abaixo"
         getDados={getDados}
       >
-        <ModalGetDados />
+        <ModalDados
+          valueReal={valueReal}
+          setValueReal={setValueReal}
+          description={description}
+          setDescription={setDescription}
+          valueDate={valueDate}
+          setValueDate={setValueDate}
+        />
+      </ModalBase>
+
+      <ModalBase
+        open={openModalEdit}
+        toggleOpenedModal={toggleModalEdit}
+        title="Alterando"
+        subTitle="Altere os dados abaixo"
+        getDados={getDados}
+      >
+        <ModalDados
+          valueReal={valueReal}
+          setValueReal={setValueReal}
+          description={description}
+          setDescription={setDescription}
+          valueDate={valueDate}
+          setValueDate={setValueDate}
+        />
       </ModalBase>
     </>
   );
