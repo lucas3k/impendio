@@ -140,8 +140,8 @@ const Dashboard = () => {
   };
 
   const getDados = () => {
-    const real = Number(valueReal.trim());
-    const desc = description.trim();
+    const real = Number(valueReal);
+    const desc = description;
     const data = new Date(valueDate).toISOString();
 
     if (real === "" || desc === "" || data === "") {
