@@ -238,7 +238,7 @@ const Dashboard = () => {
                 : `Receitas - ${formatNumberToBR(fullRevenues)}`}
             </Typography>
 
-            <Buttons text="+ Receita" handleClick={toggleModalNewRevenues} />
+            <Buttons text="Receita" handleClick={toggleModalNewRevenues} />
           </Box>
 
           <Box className="containerModalBtn">
@@ -248,7 +248,7 @@ const Dashboard = () => {
                 : `Despesas - ${formatNumberToBR(fullExpenses)}`}
             </Typography>
 
-            <Buttons text="+ Despesas" handleClick={toggleModalNewExpenses} />
+            <Buttons text="Despesas" handleClick={toggleModalNewExpenses} />
           </Box>
 
           <Box>
