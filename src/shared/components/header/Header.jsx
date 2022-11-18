@@ -13,6 +13,7 @@ const Header = ({ isLogout = false, handleClick = () => {} }) => {
             variant="h2"
             color="#1aae9e"
             fontWeight="600"
+            sx={{ fontSize: "3rem", p: 0.3 }}
           >
             Impendio
           </Typography>

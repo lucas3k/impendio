@@ -235,7 +235,7 @@ const Dashboard = () => {
             <Typography component="p">
               {!!fullRevenues
                 ? `Receitas ${formatNumberToBR(fullRevenues)}`
-                : "Receitas - sem valor"}
+                : `Receitas - ${formatNumberToBR(fullRevenues)}`}
             </Typography>
 
             <Buttons text="+ Receita" handleClick={toggleModalNewRevenues} />
@@ -245,7 +245,7 @@ const Dashboard = () => {
             <Typography component="p">
               {!!fullExpenses
                 ? `Despesas ${formatNumberToBR(fullExpenses)}`
-                : "Despesas - sem valor"}
+                : `Despesas - ${formatNumberToBR(fullExpenses)}`}
             </Typography>
 
             <Buttons text="+ Despesas" handleClick={toggleModalNewExpenses} />
