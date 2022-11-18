@@ -72,11 +72,6 @@ const Dashboard = () => {
       });
   };
 
-  useEffect(() => {
-    const isToken = localStorage.getItem("token");
-    if (isToken) setToken(isToken);
-  }, []);
-
   const getAllValues = (typeId) => {
     return allTransaction.reduce((acc, item) => {
       if (+item.typeId === typeId) return (acc += item.value);
@@ -151,13 +146,11 @@ const Dashboard = () => {
 
     if (openModalNewRevenues) {
       newTransaction(real, desc, data, 1);
-
       toggleModalNewRevenues();
     }
 
     if (openModalNewExpenses) {
       newTransaction(real, desc, data, 2);
-
       toggleModalNewExpenses();
     }
 
@@ -167,7 +160,7 @@ const Dashboard = () => {
     }
   };
 
-  const formatNumberToBR = (num = 0) => {
+  const formatNumber = (num = 0) => {
     return Number(num).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
@@ -212,16 +205,21 @@ const Dashboard = () => {
   }, [openModalNewRevenues, openModalNewExpenses, openModalEdit]);
 
   useEffect(() => {
-    queryGetAllTransaction();
-  }, [token]);
-
-  useEffect(() => {
     const valueRevenues = getAllValues(1);
     const valueExpenses = getAllValues(2);
 
     setFullRevenues(valueRevenues);
     setFullExpenses(valueExpenses);
   }, [allTransaction]);
+
+  useEffect(() => {
+    queryGetAllTransaction();
+  }, [token]);
+
+  useEffect(() => {
+    const isToken = localStorage.getItem("token");
+    if (isToken) setToken(isToken);
+  }, []);
 
   return (
     <>
@@ -234,8 +232,8 @@ const Dashboard = () => {
           <Box className="containerModalBtn">
             <Typography component="p">
               {!!fullRevenues
-                ? `Receitas ${formatNumberToBR(fullRevenues)}`
-                : `Receitas - ${formatNumberToBR(fullRevenues)}`}
+                ? `Receitas ${formatNumber(fullRevenues)}`
+                : `Receitas - ${formatNumber(fullRevenues)}`}
             </Typography>
 
             <Buttons text="Receita" handleClick={toggleModalNewRevenues} />
@@ -244,8 +242,8 @@ const Dashboard = () => {
           <Box className="containerModalBtn">
             <Typography component="p">
               {!!fullExpenses
-                ? `Despesas ${formatNumberToBR(fullExpenses)}`
-                : `Despesas - ${formatNumberToBR(fullExpenses)}`}
+                ? `Despesas ${formatNumber(fullExpenses)}`
+                : `Despesas - ${formatNumber(fullExpenses)}`}
             </Typography>
 
             <Buttons text="Despesas" handleClick={toggleModalNewExpenses} />
@@ -253,7 +251,7 @@ const Dashboard = () => {
 
           <Box>
             <Typography component="p">
-              {`Saldo total: ${formatNumberToBR(fullRevenues - fullExpenses)}`}
+              {`Saldo total: ${formatNumber(fullRevenues - fullExpenses)}`}
             </Typography>
           </Box>
         </Box>
@@ -287,7 +285,7 @@ const Dashboard = () => {
                       </TableCell>
 
                       <TableCell align="right">
-                        {formatNumberToBR(row.value)}
+                        {formatNumber(row.value)}
                       </TableCell>
 
                       <TableCell align="right">{row.description}</TableCell>
